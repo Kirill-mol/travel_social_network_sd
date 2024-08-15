@@ -42,7 +42,7 @@ paths:
                   id:
                     type: string
                     format: uuid
-                    description: id поста
+                    description: Id поста
                 required:
                   - id
               examples:
@@ -232,6 +232,7 @@ paths:
               request:
                 value:
                   text: "Офигеть!"
+                  postId: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
       responses:
         200:
           description: Ok
@@ -266,6 +267,7 @@ paths:
               request:
                 value:
                   mark: 5
+                  postId: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
       responses:
         200:
           description: Ok
@@ -376,10 +378,15 @@ components:
       type: object
       required:
         - text
+        - postId
       properties:
         text:
           type: string
           description: Текст комментария
+        postId:
+          type: string
+          format: uuid
+          description: Id поста для комментария
     Commentary:
       type: object
       required:
@@ -407,10 +414,15 @@ components:
       type: object
       required:
         - mark
+        - postId
       properties:
         mark:
           type: integer
           description: Оценка поста
+        postId:
+          type: string
+          format: uuid
+          description: Id поста для оценки
     PostDetails:
       type: object
       required:
