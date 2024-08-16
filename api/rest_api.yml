@@ -1,0 +1,497 @@
+openapi: 3.0.3
+
+tags:
+  - name: Posts
+  - name: Locations
+  - name: Feedbacks
+  - name: Users
+
+info:
+  title: Travel Social Network API
+  description: Current API describes interaction with Travel Social Network API
+  version: 1.0.0
+
+paths:
+  /posts:
+    post:
+      summary: Публикация поста
+      description: Метод реализует функциональность публикации поста
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+            examples:
+              request:
+                value:
+                  title: "Мое грандиозное путешествие в Японию"
+                  locationId: "92d08f35-4f46-442c-ba65-9b7467dc2afa"
+                  text: "Это великолепное путешествие"
+                  photosIds: ["6d14faa2-8faa-4f9c-8380-d7eaab3ae100","6fdb23c6-fe20-4878-9bd3-c6f5ada59939"]
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    description: Id поста
+                required:
+                  - id
+              examples:
+                response:
+                  value:
+                    id: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /posts/{postId}:
+    get:
+      summary: Просмотр поста
+      description: Метод реализует функциональность публикации поста
+      tags:
+        - Posts
+      parameters:
+        - name: postId
+          in: path
+          description: Id поста
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "36d7cb6a-497e-48ed-99c9-b52cdd8e0b94"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostDetails'
+              examples:
+                response:
+                  value:
+                    id: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+                    title: "Мое грандиозное путешествие в Японию"
+                    locationId: "92d08f35-4f46-442c-ba65-9b7467dc2afa"
+                    text: "Это великолепное путешествие"
+                    photos: ["https://photo.tsn.com/6fdb23c6-fe20-4878-9bd3-c6f5ada59939","https://photo.tsn.com/45322279-ddaa-48f3-bfb2-64b1d196f57a"]
+                    userId: "a85848d6-c749-416a-8c60-5f4a235b89e0"
+                    comments:
+                      - id: "5092e3b5-4f2d-40fa-8f24-a35eae9ed28f"
+                        text: "Завидую!"
+                        userId: "d9ec9c71-ce2d-4a61-b6de-f14f2a7a2dd3"
+                        date: "2025-08-09T18:31:42"
+                    mark: 4.4
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /posts/feed:
+    get:
+      summary: Просмотр ленты постов
+      description: Метод реализует функциональность просмотра ленты постов по фильтрам
+      tags:
+        - Posts
+      parameters:
+        - name: pointer
+          in: query
+          description: Id последнего поста в пагинации
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: locationId
+          in: query
+          description: Id локации ленты
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: query
+          description: Id пользователя
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostFeed'
+              examples:
+                response:
+                  value:
+                    - id: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+                      title: "Мое грандиозное путешествие в Японию"
+                      locationId: "92d08f35-4f46-442c-ba65-9b7467dc2afa"
+                      text: "Это великолепное путешествие"
+                      photo: "https://photo.tsn.com/6fdb23c6-fe20-4878-9bd3-c6f5ada59939"
+                      userId: "a85848d6-c749-416a-8c60-5f4a235b89e0"
+                      mark: 4.4
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /posts/popular:
+    get:
+      summary: Просмотр популярных постов
+      description: Метод реализует функциональность просмотра ленты популярных постов
+      tags:
+        - Posts
+      parameters:
+        - name: pointer
+          in: query
+          description: Id последнего поста в пагинации
+          required: false
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostFeed'
+              examples:
+                response:
+                  value:
+                    - id: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+                      title: "Мое грандиозное путешествие в Японию"
+                      locationId: "92d08f35-4f46-442c-ba65-9b7467dc2afa"
+                      text: "Это великолепное путешествие"
+                      photo: "https://photo.tsn.com/6fdb23c6-fe20-4878-9bd3-c6f5ada59939"
+                      userId: "a85848d6-c749-416a-8c60-5f4a235b89e0"
+                      mark: 4.4
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /locations/{locationId}:
+    get:
+      summary: Получение данных о локации
+      description: Метод реализует функциональность получение данных о локации
+      tags:
+        - Locations
+      parameters:
+        - name: locationId
+          in: path
+          description: Id локации
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "36d7cb6a-497e-48ed-99c9-b52cdd8e0b94"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+              examples:
+                response:
+                  value:
+                    id: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+                    name: "Токио, Япония"
+                    coordinates:
+                      latitude: 35.6826
+                      longitude: 139.7608
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /feedbacks/comment:
+    post:
+      summary: Комментарий к посту
+      description: Метод реализует функциональность комментирования поста
+      tags:
+        - Feedbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentaryRequest'
+            examples:
+              request:
+                value:
+                  text: "Офигеть!"
+                  postId: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+      responses:
+        200:
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Commentary'
+              examples:
+                response:
+                  value:
+                    id: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+                    text: "Офигеть!"
+                    userId: "8cec98b9-c0bc-4d46-90b3-1aa3eca3de15"
+                    date: "2025-08-09T18:31:42"
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /feedbacks/mark:
+    post:
+      summary: Оценка поста
+      description: Метод реализует функциональность оценивания поста
+      tags:
+        - Feedbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarkRequest'
+            examples:
+              request:
+                value:
+                  mark: 5
+                  postId: "4eb8b647-ca37-4b79-842b-c0e075abcd5d"
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+  /users/{userId}/subscribe:
+    post:
+      summary: Подписка на пользователя
+      description: Метод реализует функциональность подписки на пользователя
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: Id пользователя
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "36d7cb6a-497e-48ed-99c9-b52cdd8e0b94"
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+    delete:
+      summary: Отписка от пользователя
+      description: Метод реализует функциональность отписки на пользователя
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          description: Id пользователя
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "36d7cb6a-497e-48ed-99c9-b52cdd8e0b94"
+      responses:
+        200:
+          description: Ok
+        400:
+          description: Bad Request
+        500:
+          description: Server error
+components:
+  schemas:
+    Coordinates:
+      type: object
+      required:
+        - latitude
+        - longitude
+      properties:
+        latitude:
+          type: number
+          format: double
+          example: 35.6826
+          description: Широта
+        longitude:
+          type: number
+          format: double
+          example: 139.7608
+          description: Долгота
+    Location:
+      type: object
+      required:
+        - id
+        - name
+        - coordinates
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Id локации
+          example: e5f41bdf-7ca1-4b63-b49d-607b58375599
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        name:
+          type: string
+          description: Название локации
+    Post:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          description: Post title
+        locationId:
+          type: string
+          format: uuid
+          description: Id локации путешествия
+        text:
+          type: string
+          description: Описание путешествия
+        photoIds:
+          type: array
+          description: Список id загруженных фотографий путешествия
+          items:
+            type: string
+            format: uuid
+    CommentaryRequest:
+      type: object
+      required:
+        - text
+        - postId
+      properties:
+        text:
+          type: string
+          description: Текст комментария
+        postId:
+          type: string
+          format: uuid
+          description: Id поста для комментария
+    Commentary:
+      type: object
+      required:
+        - id
+        - text
+        - userId
+        - date
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Id комментария
+        text:
+          type: string
+          description: Текст комментария
+        userId:
+          type: string
+          format: uuid
+          description: Id пользователя
+        date:
+          type: string
+          format: datetime
+          description: Время публикации комментария
+    MarkRequest:
+      type: object
+      required:
+        - mark
+        - postId
+      properties:
+        mark:
+          type: integer
+          description: Оценка поста
+        postId:
+          type: string
+          format: uuid
+          description: Id поста для оценки
+    PostDetails:
+      type: object
+      required:
+        - id
+        - title
+        - userId
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Id поста
+        title:
+          type: string
+          description: Post title
+        locationId:
+          type: string
+          format: uuid
+          description: Id локации путешествия
+        text:
+          type: string
+          description: Описание путешествия
+        photos:
+          type: array
+          description: Список загруженных фотографий путешествия
+          items:
+            type: string
+            format: url
+        userId:
+          type: string
+          format: uuid
+          description: Id пользователя
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Commentary'
+        mark:
+          type: number
+          format: double
+          description: Средняя оценка
+    PostFeed:
+      type: object
+      required:
+        - id
+        - title
+        - userId
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Id поста
+        title:
+          type: string
+          description: Post title
+        locationId:
+          type: string
+          format: uuid
+          description: Id локации путешествия
+        text:
+          type: string
+          description: Описание путешествия
+        photo:
+          type: string
+          format: url
+          description: Главная фотография поста
+        userId:
+          type: string
+          format: uuid
+          description: Id пользователя
+        mark:
+          type: number
+          format: double
+          description: Средняя оценка
