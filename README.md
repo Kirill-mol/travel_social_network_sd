@@ -77,36 +77,51 @@ System Design социальной сети для курса по System Desi
     - Traffic = 120 * 200 byte = 24 kb / s
 - Публикация постов
     - RPS = 10_000_000 / 30 / 86400 = 4
-    - Traffic = 4 * 2mb = 8 mb / s
-- Оценки (write)
+    - Traffic(meta) = 4 * 1mb = 4 mb / s
+    - Traffic(media) = 4 * 2mb = 8 mb / s
+- Оценки
     - RPS = 10_000_000 * 4 / 86400 = 480
     - Traffic = 480 * 100 byte = 48 kb / s
+
+**Общее**
+- RPS = 604
+- Traffic(meta) = 4 mb/s
+- Traffic(media) = 10 mb/s
 
 ### Read
 - Просмотр постов в ленте (с учетом поиск и ленты пользователей)
     - RPS = 10_000_000 * 53 / 86400 = 6150
-    - Traffic = 5800 * 0.5mb = 3.1 gb / s
+    - Traffic(meta) = 5800 * 0.2mb = 1.16 gb / s
+    - Traffic(media) = 5800 * 0.5mb = 3.1 gb / s
 - Просмотр поста
     - RPS = 10_000_000 * 6 / 86400 = 580
-    - Traffic = 580 * 2mb = 1.2 gb / s
+    - Traffic(meta) = 5800 * 1mb = 5.8 gb / s
+    - Traffic(media) = 5800 * 2mb = 11.6 gb / s
+
+**Общее**
+- RPS = 6730
+- Traffic(meta) = 7 gb/s
+- Traffic(media) = 15 gb/s
+
 
 ### Расчет памяти и дисков
 
-Replication factor = 3
+### Хранение метаинформации
 
-Посты за год 10_000_000 / 30 * 365 = 121 млн * 1500b = 200 Gb * 3 = 600 Gb 
-Комментарии за год 10_000_000 * 365 = 3650 млн = 25 Gb
-Оценки за год 10_000_000 * 4 * 365 = 14600 млн = 3 Tb
+Берем диски по ssd(sata) по 4 TB и replication factor = 3
 
-5 SSD(SATA) по 1 Tb
-5_000 iops
-2.5 Gb/s
+Сapacity = 4 МБ/с * 86 400 * 365 = 126 ТБ
+Disks_for_capacity = 126 ТБ / 4 ТБ = 31.5
+Disks_for_throughput = 7 GБ/с / 500 МБ/с = 14
+Disks_for_iops = 7334 / 1000 = 8
+Disks = 32 * 3 = 96
 
+### Хранение медиа информации
 
-Replication factor 2
-Медиа за год 10_000_000 * 4 / 30 * 365 = 490 млн = 250 tb * 2 = 500 Tb 
+Берем диски по ssd(sata) по 4 TB и replication factor = 2
 
-50 SSD(SATA) по 10 Tb
-50_000 iops 
-25 Gb/s
-
+Сapacity = 10 МБ/с * 86 400 * 365 = 316 ТБ
+Disks_for_capacity = 316 ТБ / 4 ТБ = 79
+Disks_for_throughput = 15 GБ/с / 500 МБ/с = 30
+Disks_for_iops = 7334 / 1000 = 7.35
+Disks = 79 * 2 = 158
