@@ -10,7 +10,8 @@ Table users {
   firstname string [not null]
   lastname string [not null]
   nickname string [not null, unique]
-  photo_id string
+  photo_link string
+  email string [not null, unique]
 }
 
 Table subscriptions {
